@@ -138,7 +138,6 @@ public class TreatmentPlanServiceImpl implements TreatmentPlanService {
 		List<Map<String, BigDecimal>> medicationCombinations = new ArrayList<>(disease.getMedicationCombinations());
 		List<Map<String, BigDecimal>> medicationPossibilities = new ArrayList<>();
 		Iterator<Map<String, BigDecimal>> itr = medicationCombinations.iterator();
-		List<BigDecimal> dosages = new ArrayList<>();
 
 		// Filter out medications patient is allergic to and create map of
 		// medications with dosage in mg based on patient weight
