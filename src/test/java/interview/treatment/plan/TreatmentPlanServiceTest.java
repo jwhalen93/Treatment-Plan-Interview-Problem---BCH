@@ -36,7 +36,7 @@ public class TreatmentPlanServiceTest {
     @Test
     public void ageInMonths() throws Exception {
         Integer ageMonths = treatmentPlanService.ageInMonths(testPatient);
-        Assert.assertEquals(279, ageMonths.intValue());
+        Assert.assertEquals(282, ageMonths.intValue());
     }
 
     @Test
@@ -148,7 +148,7 @@ public class TreatmentPlanServiceTest {
         TreatmentPlan expected = new TreatmentPlan();
         expected.setClinics(Collections.singletonList(TestHelper.clinics().stream().filter(c -> c.getName().equals("Adult General")).findFirst().get()));
         expected.setAgeYearPortion(23);
-        expected.setAgeMonthPortion(3);
+        expected.setAgeMonthPortion(6);
 
         Map<Medication, BigDecimal> expectedMedications = new HashMap<>();
         expectedMedications.put(TestHelper.medications().stream().filter(m -> m.getName().equals("Acetaminophen")).findFirst().get(), BigDecimal.valueOf(68));
