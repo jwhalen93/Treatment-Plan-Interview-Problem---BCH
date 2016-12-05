@@ -94,7 +94,7 @@ public class TreatmentPlanServiceImpl implements TreatmentPlanService {
 		List<Clinic> ageClinics = new ArrayList<>();
 		List<Clinic> diseaseClinics = new ArrayList<>();
 		// Get two Lists of clinics based off age and disease and merge for a
-		// final list
+		// final list.
 		for (Clinic c : clinics) {
 			if (c.getMinAgeInMonths() <= pMonths && ((c.getMaxAgeInMonths() != null) ? pMonths <= c.getMaxAgeInMonths() : true)) {
 				ageClinics.add(c);
