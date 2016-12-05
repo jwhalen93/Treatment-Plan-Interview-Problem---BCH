@@ -1,14 +1,17 @@
 package interview.treatment.plan;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.Period;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.Function;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -71,7 +74,7 @@ public class TreatmentPlanServiceImpl implements TreatmentPlanService {
 
 	@Override
 	public Integer ageInMonths(Patient patient) {
-		return (int) Period.between(patient.getDateOfBirth(), LocalDate.now()).toTotalMonths() - 3;
+		return (int) Period.between(patient.getDateOfBirth(), LocalDate.now()).toTotalMonths();
 
 	}
 
@@ -93,8 +96,7 @@ public class TreatmentPlanServiceImpl implements TreatmentPlanService {
 		// Get two Lists of clinics based off age and disease and merge for a
 		// final list
 		for (Clinic c : clinics) {
-			if (c.getMinAgeInMonths() <= pMonths
-					&& ((c.getMaxAgeInMonths() != null) ? pMonths <= c.getMaxAgeInMonths() : true)) {
+			if (c.getMinAgeInMonths() <= pMonths && ((c.getMaxAgeInMonths() != null) ? pMonths <= c.getMaxAgeInMonths() : true)) {
 				ageClinics.add(c);
 			}
 			if (!Collections.disjoint(c.getDiseases(), pLikelyDiseases)) {
@@ -111,6 +113,7 @@ public class TreatmentPlanServiceImpl implements TreatmentPlanService {
 		DecimalFormat twoDecimal = new DecimalFormat("#.##");
 		List<String> pSymptoms = new ArrayList<>(patient.getSymptoms());
 		Map<Disease, BigDecimal> diseaseLikelihoods = new HashMap<>();
+		
 		// Compute disease likelihood based on ratio of how many symptoms match
 		// what the patient has vs total amount of symptoms based on disease
 		// list
@@ -149,12 +152,11 @@ public class TreatmentPlanServiceImpl implements TreatmentPlanService {
 			Map<String, BigDecimal> weighedMap = map.entrySet().stream()
 					.collect(Collectors.toMap(m -> m.getKey(), m -> m.getValue().multiply(pWeight)));
 			medicationPossibilities.add(weighedMap);
-			for (Entry<String, BigDecimal> map2 : weighedMap.entrySet()) {
-			}
 		}
 		if (medicationPossibilities.size() == 0) {
 			return patientMedicationsMap;
 		}
+		
 		Iterator<Map<String, BigDecimal>> itr2 = medicationPossibilities.iterator();
 		float max = 0;
 		Map<Medication, BigDecimal> tempMap = new HashMap<>();
@@ -190,11 +192,12 @@ public class TreatmentPlanServiceImpl implements TreatmentPlanService {
 	public TreatmentPlan treatmentPlanForPatient(Patient patient) {
 		Map<Disease, BigDecimal> diseasesMap = diseaseLikelihoods(patient);
 		Map<Medication, BigDecimal> medicationsMap = new HashMap<>();
-		// Create list of diseases where likeihood of having the disease is >= 70%
+		// Create list of diseases where likeihood of having the disease is >=
+		// 70%
 		List<Disease> likelyDiseases = diseasesMap.entrySet().stream()
 				.filter(d -> d.getValue().compareTo(BigDecimal.valueOf(.7)) >= 0).map(Map.Entry::getKey)
 				.collect(Collectors.toList());
-		
+
 		// Create map of all medications + dosages based on likely diseases,
 		// with extra care taken to make sure duplicate keys have their values
 		// handled properly
@@ -210,10 +213,11 @@ public class TreatmentPlanServiceImpl implements TreatmentPlanService {
 				}
 			}
 		}
-		int year = patient.getDateOfBirth().getYear();
-		int month = ageInYears(patient) * 12 + LocalDate.now().getMonthValue() - ageInMonths(patient);
-		System.out.println(month);
-		return new TreatmentPlan(ageInYears(patient), 3, clinicsBasedOnAgeAndDiseases(patient), medicationsMap);
+	
+		int month = ageInMonths(patient) - (ageInYears(patient) * 12);
+		List<Clinic> patientClinics = clinicsBasedOnAgeAndDiseases(patient);
+		int year = ageInYears(patient);
+		return new TreatmentPlan(year, month, patientClinics, medicationsMap);
 	}
 
 }
